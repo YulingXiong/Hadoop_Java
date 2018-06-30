@@ -1,0 +1,92 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1344\cocoasubrtf720
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww12000\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs28 \cf0 Overview
+\b0\fs24 \
+\
+
+\b WordHistogram.java
+\b0 \
+It is very similar to WordCount, but it has some minor difference below:\
+In 
+\b Map
+\b0  phase: (K1, V1) -> list
+\b (K2, V2),
+\b0   the emitted K2 here is the length of word, but not the word itself. \
+
+\b Mapper
+\b0 <LongWritable, Text, 
+\b Text, IntWritable
+\b0 >\
+ \
+In 
+\b Reduce
+\b0  phase: 
+\b (K2, list(V2))
+\b0  -> list(K3, V3)\
+
+\b Reducer
+\b0 <
+\b Text, IntWritable
+\b0 , Text, IntWritable>\
+\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+
+\b WordCountByFile.java
+\b0 \
+The key thing is the data structure chosen in the Reduced phase. \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 In 
+\b Map
+\b0  phase: (K1, V1) -> list
+\b (K2, V2),
+\b0   the emitted list is (K2=word, V2=filePathString). \
+Mapper<LongWritable, Text, 
+\b Text, Text
+\b0 >\
+\
+In 
+\b Reduce
+\b0  phase: 
+\b (K2, list(V2))
+\b0  -> list(K3, V3), for each key=word, the emitted value is stored in a 
+\b HashMap<String, Integer>
+\b0  with filePath as the key, and the count of filePath as the value. Then the K and V in this HashMap is changed into a String, which is further transformed into Text format. \
+
+\b Reducer
+\b0 <
+\b Text, Text
+\b0 , Text, Text>\
+\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+
+\b DocWordIndex.java
+\b0 \
+The key things are getting the wordIndex in the Map phase and the data structure chosen in the Reduced phase. \
+In 
+\b Map
+\b0  phase: (K1, V1) -> list
+\b (K2, V2),
+\b0   the emitted list is (K2=word, V2=\'93filePathString+wordIndex\'94). For each word, its comes from the same filePath, then index = count++; otherwise index = 1.\
+Mapper<LongWritable, Text, 
+\b Text, Text
+\b0 >\
+\
+In 
+\b Reduce
+\b0  phase: 
+\b (K2, list(V2))
+\b0  -> list(K3, V3), for each key=word, the emitted value is stored in a 
+\b HashMap<String, ArrayList<String>>
+\b0  with filePath as the key, the index of words are stored in the ArrayList.\
+Then the K and V in this HashMap is changed into a String, and replace\'94[\'93 \'93]\'94 appeared in the array list with \'93\'94, which is further transformed into Text format later.\
+
+\b Reducer
+\b0 <
+\b Text, Text
+\b0 , Text, Text>\
+\
+}
